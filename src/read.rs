@@ -5,8 +5,9 @@ use std::io::BufReader;
 use std::sync::mpsc::Sender;
 use std::thread::{spawn, JoinHandle};
 use super::paramcli::*;
+use super::lineread::*;
 
-pub fn start_thread_read(to_aggregate: Sender<String>, data: &Paramcli) -> JoinHandle<()>{
+pub fn start_thread_read(to_aggregate: Sender<Lineread>, data: &Paramcli) -> JoinHandle<()>{
     if data.input.is_empty(){
         return start_thread_read_stdin(to_aggregate); 
     }
@@ -18,7 +19,7 @@ pub fn start_thread_read(to_aggregate: Sender<String>, data: &Paramcli) -> JoinH
     start_thread_read_files(to_aggregate, data)
 }
 
-fn start_thread_read_files(to_aggregate: Sender<String>, data: &Paramcli) -> JoinHandle<()> {
+fn start_thread_read_files(to_aggregate: Sender<Lineread>, data: &Paramcli) -> JoinHandle<()> {
     //TODO:input is a path either get all files or  recurse in it
     println!("multi-file and recurse grep not yep implemented !!");
     //TODO
@@ -31,9 +32,12 @@ fn start_thread_read_files(to_aggregate: Sender<String>, data: &Paramcli) -> Joi
             }
             Ok(f) => {
                 let buffered = BufReader::new(f);
+                let mut pos=0;
                 for line in buffered.lines() {
+                    pos+=1;                    
                     if let Ok(l) = line {
-                        if to_aggregate.send(l).is_err() {
+                        let mut lr = Lineread::new(&file,pos,&l);
+                        if to_aggregate.send(lr).is_err() {
                             println!("error sending to compute");
                             return;
                         }
@@ -47,7 +51,7 @@ fn start_thread_read_files(to_aggregate: Sender<String>, data: &Paramcli) -> Joi
 
 
 
-fn start_thread_read_file(to_aggregate: Sender<String>, fic: &str) -> JoinHandle<()> {
+fn start_thread_read_file(to_aggregate: Sender<Lineread>, fic: &str) -> JoinHandle<()> {
     let file = String::from(fic);
     spawn(move || {
         let input = File::open(&file);
@@ -57,9 +61,12 @@ fn start_thread_read_file(to_aggregate: Sender<String>, fic: &str) -> JoinHandle
             }
             Ok(f) => {
                 let buffered = BufReader::new(f);
+                let mut pos=0;
                 for line in buffered.lines() {
+                    pos+=1;
                     if let Ok(l) = line {
-                        if to_aggregate.send(l).is_err() {
+                        let mut lr = Lineread::new(&file,pos,&l);
+                        if to_aggregate.send(lr).is_err() {
                             println!("error sending to compute");
                             return;
                         }
@@ -70,16 +77,19 @@ fn start_thread_read_file(to_aggregate: Sender<String>, fic: &str) -> JoinHandle
     })
 }
 
-fn start_thread_read_stdin(to_aggregate: Sender<String>) -> JoinHandle<()> {
+fn start_thread_read_stdin(to_aggregate: Sender<Lineread>) -> JoinHandle<()> {
     let stdin = io::stdin(); // We get `Stdin` here.
     spawn(move || {
         let buffered = BufReader::new(stdin);
+        let mut pos=0;
         for line in buffered.lines() {
             if let Ok(l) = line {
-                if to_aggregate.send(l).is_err() {
+                pos+=1;
+                let mut lr = Lineread::new("",pos,&l);
+                if to_aggregate.send(lr).is_err() {
                     println!("error sending to compute");
                     return;
-                }
+                }                
             }
         }
     })
