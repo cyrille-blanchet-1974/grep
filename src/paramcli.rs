@@ -1,5 +1,4 @@
 use std::env;
-use std::fs::File;
 
 #[derive(Debug)]
 pub struct Paramcli
@@ -44,16 +43,53 @@ impl Paramcli {
                 recurse = true;
                 continue;
             }
+            if arg.to_lowercase() == "-inverse" {
+                inverse_search = true;
+                continue;
+            }
+            if arg.to_lowercase() == "-recurse" {
+                recurse = true;
+                continue;
+            }
+            if arg.to_lowercase() == "-case_sensitive" {
+                case_sensitive = true;
+                continue;
+            }
+            if let Some(n) = get_param(&arg, String::from("-after")) {
+                match n.parse::<u8>() {
+                    Err(e) => {
+                        println!("parameter {} is not a number -> {}", n, e);
+                    }
+                    Ok(v) => {
+                        after = v;
+                    }
+                };
+                continue;
+            }
+            if let Some(n) = get_param(&arg, String::from("-before")) {
+                match n.parse::<u8>() {
+                    Err(e) => {
+                        println!("parameter {} is not a number -> {}", n, e);
+                    }
+                    Ok(v) => {
+                        before = v;
+                    }
+                };
+                continue;
+            }
             //TODO : complete
+            if ! arg.starts_with('-'){
+                if search.is_empty(){
+                    search.push_str(&arg);
+                    continue;
+                }
+                if input.is_empty(){
+                    input.push_str(&arg);
+                    continue;
+                }
+            }
+            help(&name);
         }
-        //checks
-        /*if !fic.is_empty() {
-            //check if file exists
-            if File::open(&fic).is_err() {
-                println!("Error file {} doesn't exists or unereadable", &fic);
-                help(&name);
-            };
-        }*/
         Paramcli { 
             after,
             before,
@@ -64,6 +100,14 @@ impl Paramcli {
             recurse,
          }
     }
+}
+
+fn get_param(arg: &str, switch: String) -> Option<String> {
+    if arg.to_lowercase().starts_with(&switch) {
+        let mut a = String::from(arg);
+        return Some(a.split_off(switch.len()));
+    }
+    None
 }
 
 fn help(name: &str) {

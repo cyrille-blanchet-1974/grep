@@ -1,26 +1,29 @@
 mod paramcli;
 mod read;
+mod aggregate;
 mod grep;
 
 use paramcli::*;
 use read::*;
+use aggregate::*;
 use std::sync::mpsc::channel;
 use grep::*;
 
 pub fn traitement(p: &Paramcli) {
     //MPSC chanels
-    let (to_compute, from_read) = channel();
+    let (to_aggregate, from_read) = channel();
+    let (to_compute, from_aggregate) = channel();
 
-    let hread = //if !p.fic.is_empty() {
-        //start_thread_read_file(to_compute, &p.fic)
-    //} else {
-        start_thread_read_stdin(to_compute);
-    //};
-    let hcompute = start_thread_grep(from_read, &true);
+    let hread = start_thread_read(to_aggregate,p);
+    let haggregate = start_thread_aggregate(from_read,to_compute, &p);
+    let hcompute = start_thread_grep(from_aggregate, &true);
 
     //wait for threads to stop
     if hread.join().is_err() {
         println!("Thread read finished with error");
+    }
+    if haggregate.join().is_err() {
+        println!("Thread aggregate finished with error");
     }
     if hcompute.join().is_err() {
         println!("Thread compute finished with error");
