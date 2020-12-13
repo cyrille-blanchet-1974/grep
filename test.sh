@@ -1,20 +1,20 @@
 #/bin/sh*
-# 1
+# rem 1
 cargo build 
-# 3
-# 4
-# 5
-# 6
-# 7
-# 8
-# 9
-./target/debug/grep # test.sh
-# A
-# B
-# C
-# D
-# E
-# F
-# G
+# rem 3
+# rem 4
+# rem 5
+# rem 6
+# rem 7
+# rem 8
+# rem 9
+./target/debug/grep rem test.sh
+# rem A
+# rem B
+# rem C
+# rem D
+# rem E
+# rem F
+# rem G
 read a
-./target/debug/grep.exe # test.sh -after3 -before3
+./target/debug/grep rem test.sh -after3 -before3
