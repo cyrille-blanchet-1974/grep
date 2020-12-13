@@ -35,7 +35,7 @@ pub fn start_thread_aggregate(from_read:Receiver<Lineread>, to_compute: Sender<S
                 file.clear();
                 file.push_str(&l.file);
             }
-            res.add(l.data);            
+            res.add(l.data); 
             match res.get(){
                 None => {
                     //break;
@@ -47,6 +47,21 @@ pub fn start_thread_aggregate(from_read:Receiver<Lineread>, to_compute: Sender<S
                     }
                 }
             }
-        }
+        }//loop reads
+        //continue to advanced
+        loop {
+            res.forward();
+            match res.get(){
+                None => {
+                    break;
+                    },
+                Some(x)=>{
+                    if to_compute.send(x).is_err() {
+                        println!("error sending to write");
+                        return;
+                    }
+                }
+            }
+        }        
    })
 }
