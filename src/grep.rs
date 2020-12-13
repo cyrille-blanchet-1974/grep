@@ -9,7 +9,7 @@ pub fn start_thread_grep(from_aggregate: Receiver<Lineaggregate>, data: &Paramcl
     spawn(move || {
         for l in from_aggregate {
             if l.data.contains(&to_search){
-                println!("Trouvé {}",l.pos);
+                println!("{}({})==>{}",&l.file,l.pos,&l.data);
             }
         }
     })
