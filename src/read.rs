@@ -4,6 +4,7 @@ use std::io::BufRead;
 use std::io::BufReader;
 use std::sync::mpsc::Sender;
 use std::thread::{spawn, JoinHandle};
+use std::convert::TryInto;
 use super::paramcli::*;
 use super::lineread::*;
 
@@ -12,7 +13,7 @@ pub fn start_thread_read(to_aggregate: Sender<Lineread>, data: &Paramcli) -> Joi
         return start_thread_read_stdin(to_aggregate); 
     }
     //check if file exists
-    if !File::open(&data.input).is_err() {
+    if File::open(&data.input).is_ok() {
         //input is a file
         return start_thread_read_file(to_aggregate, &data.input);
     };
@@ -32,11 +33,10 @@ fn start_thread_read_files(to_aggregate: Sender<Lineread>, data: &Paramcli) -> J
             }
             Ok(f) => {
                 let buffered = BufReader::new(f);
-                let mut pos=0;
-                for line in buffered.lines() {
-                    pos+=1;                    
+                for (pos, line) in buffered.lines().enumerate(){
                     if let Ok(l) = line {
-                        let mut lr = Lineread::new(&file,pos,&l);
+                        let p:u32=pos.try_into().unwrap();
+                        let lr = Lineread::new(&file,p,&l);
                         if to_aggregate.send(lr).is_err() {
                             println!("error sending to compute");
                             return;
@@ -61,11 +61,10 @@ fn start_thread_read_file(to_aggregate: Sender<Lineread>, fic: &str) -> JoinHand
             }
             Ok(f) => {
                 let buffered = BufReader::new(f);
-                let mut pos=0;
-                for line in buffered.lines() {
-                    pos+=1;
+                for (pos, line) in buffered.lines().enumerate(){
                     if let Ok(l) = line {
-                        let mut lr = Lineread::new(&file,pos,&l);
+                        let p:u32=pos.try_into().unwrap();
+                        let lr = Lineread::new(&file,p,&l);
                         if to_aggregate.send(lr).is_err() {
                             println!("error sending to compute");
                             return;
@@ -81,11 +80,10 @@ fn start_thread_read_stdin(to_aggregate: Sender<Lineread>) -> JoinHandle<()> {
     let stdin = io::stdin(); // We get `Stdin` here.
     spawn(move || {
         let buffered = BufReader::new(stdin);
-        let mut pos=0;
-        for line in buffered.lines() {
+        for (pos, line) in buffered.lines().enumerate(){
             if let Ok(l) = line {
-                pos+=1;
-                let mut lr = Lineread::new("",pos,&l);
+                let p:u32=pos.try_into().unwrap();
+                let lr = Lineread::new("",p,&l);
                 if to_aggregate.send(lr).is_err() {
                     println!("error sending to compute");
                     return;
