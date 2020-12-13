@@ -73,3 +73,48 @@ impl Clone for Lineaggregate {
         }
     }
 }
+
+#[test]
+fn test_b0_a0() {
+    let datas = vec!["A","B","C","D","E","F","G"];
+    let mut d = Lineaggregate::new("Test", 0, 0);
+    let mut pos=0;
+    for data in datas{
+        d.addline(data.to_string());
+        pos+=1;
+        d.compute_data(pos);
+        assert_eq!(data, d.data);
+        if pos == 3{
+            assert_eq!(1, d.display_data.len());
+            assert_eq!(2,d.display_data_start);
+            assert_eq!("C",d.data);
+        }    
+    }
+    assert_eq!(1, d.display_data.len());
+    assert_eq!(6,d.display_data_start);
+    assert_eq!("G",d.data);
+}
+
+#[test]
+fn test_b1_a0() {
+    let datas = vec!["A","B","C","D","E","F","G"];
+    let mut d = Lineaggregate::new("Test", 1, 0);
+    let mut pos=0;
+    for data in datas{
+        d.addline(data.to_string());
+        pos+=1;
+        d.compute_data(pos);
+        assert_eq!(data, d.data);
+        if pos == 3{
+            assert_eq!(2, d.display_data.len());
+            assert_eq!(1,d.display_data_start);
+            assert_eq!("C",d.data);
+        }    
+    }
+   /* pos+=1;
+    d.compute_data(pos);
+
+    assert_eq!(2, d.display_data.len());
+    assert_eq!(6,d.display_data_start);
+    assert_eq!("G",d.data);*/
+}
