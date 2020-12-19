@@ -4,13 +4,13 @@ use std::env;
 pub struct Paramcli
 //parameters from command line and/or confFile
 {
-    pub input: String,      //a file, a path, or stdin  
-    pub search: String,     //what to search
-    pub before:u8,          //number of line before what found do we output
-    pub after:u8,           //same but after
-    pub case_sensitive:bool,
-    pub inverse_search:bool, //return line that do not contain searche string  
-    pub recurse:bool,
+    pub input: String,  //a file, a path, or stdin
+    pub search: String, //what to search
+    pub before: u8,     //number of line before what found do we output
+    pub after: u8,      //same but after
+    pub case_sensitive: bool,
+    pub inverse_search: bool, //return line that do not contain searche string
+    pub recurse: bool,
 }
 
 impl Default for Paramcli {
@@ -22,21 +22,19 @@ impl Default for Paramcli {
 impl Paramcli {
     pub fn new() -> Paramcli {
         let mut input = String::new();
-        let mut search= String::new();
-        let mut before =0;
-        let mut after=0;
-        let mut case_sensitive=false;
-        let mut inverse_search=false;  
-        let mut recurse=false;
+        let mut search = String::new();
+        let mut before = 0;
+        let mut after = 0;
+        let mut case_sensitive = false;
+        let mut inverse_search = false;
+        let mut recurse = false;
         let args: Vec<String> = env::args().skip(1).collect();
         let name = env::args()
             .take(1)
             .next()
             .unwrap_or_else(|| String::from("grep"));
         for arg in args {
-            if arg == "-?"
-                || arg.to_lowercase() == "-help"
-            {
+            if arg == "-?" || arg.to_lowercase() == "-help" {
                 help(&name);
             }
             if arg.to_lowercase() == "-recurse" {
@@ -78,19 +76,23 @@ impl Paramcli {
                 continue;
             }
             //TODO : complete
-            if ! arg.starts_with('-'){
-                if search.is_empty(){
+            if !arg.starts_with('-') {
+                if search.is_empty() {
                     search.push_str(&arg);
                     continue;
                 }
-                if input.is_empty(){
+                if input.is_empty() {
                     input.push_str(&arg);
                     continue;
                 }
             }
             help(&name);
         }
-        Paramcli { 
+        if !case_sensitive {
+            //if search not sensitive to case we put all in lower
+            search = search.to_lowercase();
+        }
+        Paramcli {
             after,
             before,
             case_sensitive,
@@ -98,7 +100,7 @@ impl Paramcli {
             inverse_search,
             search,
             recurse,
-         }
+        }
     }
 }
 
@@ -114,7 +116,7 @@ fn help(name: &str) {
     println!("{} 1.0 (2020)", name);
     println!("syntax : {} 'what to search' [where to search] [-aftern] [-beforen] [-case_sensitive] [-inverse] [-recurse] [-help]", name);
     println!("parameters between [] are optionnals");
-    println!("'what to search': string to search"); 
+    println!("'what to search': string to search");
     println!("                  must be the first parameter not starting with '-'");
     println!("[where to search]: if present give the file, the file or the path where to search");
     println!("                   must be the second parameter not stating with '-'");
