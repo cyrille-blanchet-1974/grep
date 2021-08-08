@@ -1,3 +1,3 @@
 @cargo build --release
-@copy target\release\*.exe ..\bin
+@if exist ..\bin\nul copy target\release\*.exe ..\bin
 @pause
