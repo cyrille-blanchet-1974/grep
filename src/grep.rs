@@ -26,7 +26,7 @@ pub fn start_thread_grep(
             }
             founds += 1;
             let mut separate = l.to_display.len() > 1; //if more than one ligne to display
-            if prec_file != "" && prec_file != l.file {
+            if !prec_file.is_empty() && prec_file != l.file {
                 //or if we change of file
                 separate = true;
                 prec_file.clear();

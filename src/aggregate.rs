@@ -19,7 +19,7 @@ pub fn start_thread_aggregate(
         for l in from_read {
             if l.file != file {
                 //if not 1st file
-                if file != "" {
+                if !file.is_empty() {
                     //continue to advanced
                     loop {
                         res.forward();

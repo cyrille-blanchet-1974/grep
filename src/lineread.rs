@@ -14,8 +14,8 @@ impl Lineread {
     pub fn new(file: &str, pos: u32, data: &str) -> Lineread {
         let mut f = String::new();
         let mut d = String::new();
-        f.push_str(&file);
-        d.push_str(&data);
+        f.push_str(file);
+        d.push_str(data);
         Lineread {
             file: f,
             pos,

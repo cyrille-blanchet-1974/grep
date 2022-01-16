@@ -85,7 +85,7 @@ fn start_thread_read_file(to_aggregate: Sender<Lineread>, fic: &str) -> JoinHand
             }
             Ok(f) => {
                 if !read(f, to_aggregate, file) {
-                    return;
+                    //return;
                 }
                 /*                let buffered = BufReader::new(f);
                 for (pos, line) in buffered.lines().enumerate(){

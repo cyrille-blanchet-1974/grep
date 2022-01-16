@@ -24,7 +24,7 @@ pub struct Simplelineaggregate {
 impl Lineaggregate {
     pub fn new(file: &str, before: u8, after: u8, case_sensitive: bool) -> Lineaggregate {
         let mut f = String::new();
-        f.push_str(&file);
+        f.push_str(file);
         Lineaggregate {
             data_before: Vec::new(),
             data: Vec::new(),
